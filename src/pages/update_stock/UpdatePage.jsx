@@ -32,6 +32,7 @@ function UpdatePage() {
       transition: Bounce,
     });
   };
+
   const deleted = () => {
     toast.success("Deleted Success", {
       position: "bottom-right",
@@ -47,7 +48,7 @@ function UpdatePage() {
   };
 
   const showError = () => {
-    toast.error(`Invalid Input Error`, {
+    toast.error("Invalid Input Error", {
       position: "bottom-right",
       autoClose: 5000,
       hideProgressBar: false,
@@ -194,19 +195,71 @@ function UpdatePage() {
         </TableContainer>
       </div>
 
-      <div className="bg-white h-[150px] col-span-2 rounded-xl">
-        <TableContainer component={Paper}>
+      <div className="bg-white h-[550px] col-span-2 rounded-xl">
+        <TableContainer component={Paper} className="h-full">
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Product ID</TableCell>
-                <TableCell align="center">Product Name</TableCell>
-                <TableCell align="center">Product Description</TableCell>
-                <TableCell align="center">Amount</TableCell>
-                <TableCell align="center">Action</TableCell>
+                <TableCell
+                  style={{
+                    position: "sticky",
+                    top: 0,
+                    backgroundColor: "#fff",
+                    zIndex: 1,
+                  }}
+                >
+                  Product ID
+                </TableCell>
+                <TableCell
+                  align="center"
+                  style={{
+                    position: "sticky",
+                    top: 0,
+                    backgroundColor: "#fff",
+                    zIndex: 1,
+                  }}
+                >
+                  Product Name
+                </TableCell>
+                <TableCell
+                  align="center"
+                  style={{
+                    position: "sticky",
+                    top: 0,
+                    backgroundColor: "#fff",
+                    zIndex: 1,
+                  }}
+                >
+                  Product Description
+                </TableCell>
+                <TableCell
+                  align="center"
+                  style={{
+                    position: "sticky",
+                    top: 0,
+                    backgroundColor: "#fff",
+                    zIndex: 1,
+                  }}
+                >
+                  Amount
+                </TableCell>
+                <TableCell
+                  align="center"
+                  style={{
+                    position: "sticky",
+                    top: 0,
+                    backgroundColor: "#fff",
+                    zIndex: 1,
+                  }}
+                >
+                  Action
+                </TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
+            <TableBody
+              className="overflow-y-auto"
+              style={{ maxHeight: "450px" }}
+            >
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center">
