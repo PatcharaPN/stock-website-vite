@@ -11,7 +11,7 @@ function Storebalance() {
   return (
     <div className="grid grid-cols-4 gap-4">
       <div className="h-[170px] bg-green-500 rounded-xl">
-        <div className="text-[1.8rem] text-white mx-2">จำนวนวัสดุทั้งหมด</div>
+        <div className="text-[1.5rem] text-white mx-2">จำนวนวัสดุทั้งหมด</div>
         <div className="flex justify-between items-center">
           {" "}
           <Icon
@@ -28,7 +28,7 @@ function Storebalance() {
         </div>
       </div>
       <div className="h-[170px] bg-blue-500 rounded-xl">
-        <div className="text-[1.8rem] text-white mx-2">
+        <div className="text-[1.5rem] text-white mx-2">
           จำนวนเครื่องมือทั้งหมด
         </div>
         <div className="flex justify-between items-center">
@@ -47,7 +47,7 @@ function Storebalance() {
         </div>
       </div>
       <div className="h-[170px] bg-orange-500 rounded-xl">
-        <div className="text-[1.8rem] text-white mx-2">จำนวนวัสดุใกล้หมด</div>
+        <div className="text-[1.5rem] text-white mx-2">จำนวนวัสดุใกล้หมด</div>
         <div className="flex justify-between items-center">
           {" "}
           <Icon
@@ -64,7 +64,7 @@ function Storebalance() {
         </div>
       </div>
       <div className="h-[170px] bg-red-500 rounded-xl">
-        <div className="text-[1.8rem] text-white mx-2">จำนวนวัสดุที่หมด</div>
+        <div className="text-[1.5rem] text-white mx-2">จำนวนวัสดุที่หมด</div>
         <div className="flex justify-between items-center">
           {" "}
           <Icon

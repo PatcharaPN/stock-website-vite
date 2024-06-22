@@ -12,7 +12,7 @@ export function Nav() {
   return (
     <div className="flex">
       <div className="">
-        <div className="sticky top-0 h-[calc(100vh)] w-80 p-4 shadow-xl shadow-blue-gray-900/5 bg-[#273559] rounded-none flex flex-col">
+        <div className="fixed top-0 left-0 h-[calc(100vh)] w-80 p-4 shadow-xl shadow-blue-gray-900/5 bg-[#273559] rounded-none flex flex-col">
           <div className="text-white text-[50px] mb-[50px]">Logo</div>
           <div
             id="Profile-img"
@@ -60,7 +60,6 @@ export function Nav() {
                 <div className="text-white">Update / Edit Stock</div>
               </div>
             </Link>
-
             <Link to={"history"}>
               {" "}
               <div className="flex gap-2 items-center ">
@@ -73,17 +72,21 @@ export function Nav() {
                 <div className="text-white">History</div>
               </div>
             </Link>
-          </div>
-          <div className="flex justify-between items-center px-2 mt-[320px]">
-            <div className="text-white">v 1.0.0</div>
-            <div className="flex items-center gap-3">
-              <Icon icon="line-md:log-out" width={25} className="text-white" />
-              <button className="text-white">Log out</button>
+            <div className="flex gap-[120px] items-center px-2  py-[200px]">
+              <div className="text-white">v 1.0.0</div>
+              <div className="flex items-center gap-3">
+                <Icon
+                  icon="line-md:log-out"
+                  width={25}
+                  className="text-white"
+                />
+                <button className="text-white">Log out</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex-grow p-4">
+      <div className="flex-grow p-4 ml-80">
         <Outlet />
       </div>
     </div>

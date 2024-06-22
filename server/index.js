@@ -9,11 +9,6 @@ const bcrypt = require("bcrypt");
 
 const app = express();
 const port = 8000;
-const generateRandomId = () => {
-  const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000);
-  const prefix = "ID"; // You can customize this prefix
-  return `${prefix}${randomNumber}`;
-};
 
 app.use(cors());
 app.use(express.json());
@@ -66,11 +61,10 @@ app.get("/api/getItem", async (req, res) => {
 });
 app.post("/api/addItem", async (req, res) => {
   const { productName, productDesc, productAmount } = req.body;
-  const productId = generateRandomId();
   try {
     const result = await db.query(
-      "INSERT INTO items (productId, productName, productDesc, productAmount) VALUES ($1, $2, $3, $4) RETURNING *",
-      [productId, productName, productDesc, productAmount]
+      "INSERT INTO items (productName, productDesc, productAmount) VALUES ($1, $2, $3) RETURNING *",
+      [productName, productDesc, productAmount]
     );
 
     if (result.rows.length > 0) {
@@ -86,7 +80,7 @@ app.post("/api/addItem", async (req, res) => {
       });
     }
   } catch (err) {
-    console.error("Error registering Items:", err);
+    console.error("Error adding item:", err);
     res.status(500).json({
       message: "error",
       error: err.message,
@@ -94,6 +88,74 @@ app.post("/api/addItem", async (req, res) => {
   }
 });
 
+app.get("/api/getItems/:Id", (req, res) => {
+  const productId = req.params.Id;
+  db.query(
+    "SELECT * FROM items WHERE productId = $1",
+    [productId],
+    (error, result) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({
+          message: "Error fetching item",
+          error: error.message,
+        });
+      } else {
+        res.status(200).json({
+          message: "success",
+          item: result.rows[0],
+        });
+      }
+    }
+  );
+});
+app.put("/api/update/:productId", (req, res) => {
+  const productId = req.params.productId;
+  const { productName, productDesc, productAmount } = req.body;
+
+  try {
+    db.query(
+      "UPDATE items SET productName = $1, productDesc = $2, productAmount = $3 WHERE productid = $4",
+      [productName, productDesc, productAmount, productId],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({
+            message: "Error Updating item",
+            productId: productId,
+            error: error.message,
+          });
+        } else {
+          db.query(
+            "SELECT * FROM items WHERE productid = $1",
+            [productId],
+            (error, result) => {
+              if (error) {
+                console.log(error);
+                res.status(500).json({
+                  message: "Error fetching updated item",
+                  error: error.message,
+                });
+              } else {
+                res.status(200).json({
+                  message: "Update item success",
+                  productId: productId,
+                  result: result.rows[0],
+                });
+              }
+            }
+          );
+        }
+      }
+    );
+  } catch (err) {
+    console.error("Error updating item:", err);
+    res.status(500).json({
+      message: "Error updating item",
+      error: err.message,
+    });
+  }
+});
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
   try {

@@ -9,8 +9,12 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { Icon } from "@iconify/react";
 import Button from "@mui/material/Button";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useParams } from "react-router-dom";
 
 function UpdatePage() {
   const [loading, setLoading] = useState(true);
@@ -18,6 +22,8 @@ function UpdatePage() {
   const [productName, setProductName] = useState("");
   const [productDesc, setProductDesc] = useState("");
   const [productAmount, setProductAmount] = useState("");
+  const [editProductId, setEditProductId] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const added = () => {
     toast.success("Added item", {
@@ -101,6 +107,28 @@ function UpdatePage() {
     console.log(productId);
   };
 
+  const updateProduct = async (productId) => {
+    try {
+      const res = await axios.put(
+        `http://localhost:8000/api/update/${productId}`,
+        {
+          productName,
+          productDesc,
+          productAmount,
+        }
+      );
+      if (res.status === 200) {
+        console.log("Product updated successfully:", res.data);
+        fetchData();
+      } else {
+        console.log(res.data.message, res.data);
+      }
+    } catch (err) {
+      console.error("Error updating product:", err);
+    }
+    console.log(productId);
+  };
+
   const handleProductNameChange = (event) => {
     setProductName(event.target.value);
   };
@@ -126,6 +154,55 @@ function UpdatePage() {
       setProductDesc("");
       setProductAmount("");
       added();
+    } catch (error) {
+      console.error(
+        "Error:",
+        error.response ? error.response.data : error.message
+      );
+      showError(error.response ? error.response.data : error.message);
+    }
+  };
+
+  const handleOpenModal = (product) => {
+    setEditProductId(product.productid);
+    setProductName(product.productname);
+    setProductDesc(product.productdesc);
+    setProductAmount(product.productamount);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setEditProductId(null);
+    setProductName("");
+    setProductDesc("");
+    setProductAmount("");
+  };
+
+  const editItem = async () => {
+    try {
+      const res = await axios.put(
+        `http://localhost:8000/api/update/${editProductId}`,
+        {
+          productName,
+          productDesc,
+          productAmount,
+        }
+      );
+      console.log(res.data);
+      fetchData();
+      handleCloseModal();
+      toast.success("Product updated successfully", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      });
     } catch (error) {
       console.error(
         "Error:",
@@ -268,7 +345,7 @@ function UpdatePage() {
                 </TableRow>
               ) : data.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
+                  <TableCell colSpan={5} align="center" height={"400"}>
                     <div className="font-bold">Data not found</div>
                   </TableCell>
                 </TableRow>
@@ -284,8 +361,10 @@ function UpdatePage() {
                     <TableCell align="center">
                       <div className="flex flex-row gap-2 justify-center items-center mt-2">
                         <Button
+                          color="primary"
                           variant="contained"
-                          startIcon={<Icon icon="tabler:edit" />}
+                          onClick={() => handleOpenModal(row)}
+                          startIcon={<Icon icon="ic:outline-edit" />}
                         >
                           Edit
                         </Button>
@@ -306,6 +385,67 @@ function UpdatePage() {
           </Table>
         </TableContainer>
       </div>
+
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 500,
+            borderRadius: "20px",
+            bgcolor: "background.paper",
+            p: 4,
+          }}
+        >
+          <h2>Edit Product</h2>
+          <TextField
+            label="Product Name"
+            value={productName}
+            onChange={handleProductNameChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Product Description"
+            value={productDesc}
+            onChange={handleProductDescChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Amount"
+            value={productAmount}
+            onChange={handleProductAmountChange}
+            fullWidth
+            margin="normal"
+          />
+          <div className="flex justify-end mt-4">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={editItem}
+              style={{ marginRight: "10px" }}
+            >
+              Save
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleCloseModal}
+            >
+              Cancel
+            </Button>
+          </div>
+        </Box>
+      </Modal>
+
       <ToastContainer
         position="bottom-right"
         autoClose={5000}
