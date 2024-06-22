@@ -24,6 +24,7 @@ function UpdatePage() {
   const [productAmount, setProductAmount] = useState("");
   const [editProductId, setEditProductId] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [search, setSearch] = useState("");
 
   const added = () => {
     toast.success("Added item", {
@@ -179,6 +180,10 @@ function UpdatePage() {
     setProductAmount("");
   };
 
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value);
+  };
+
   const editItem = async () => {
     try {
       const res = await axios.put(
@@ -211,6 +216,25 @@ function UpdatePage() {
       showError(error.response ? error.response.data : error.message);
     }
   };
+
+  // Filter data based on search query
+  const filteredData = data.filter(
+    (item) =>
+      item.productid.toString().includes(search) ||
+      item.productname.toLowerCase().includes(search.toLowerCase()) ||
+      item.productdesc.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Group and sum amounts for items with the same description
+  const groupedData = filteredData.reduce((acc, item) => {
+    const existingItem = acc.find((i) => i.productdesc === item.productdesc);
+    if (existingItem) {
+      existingItem.productamount += item.productamount;
+    } else {
+      acc.push({ ...item });
+    }
+    return acc;
+  }, []);
 
   return (
     <div className="grid grid-cols-2 gap-8">
@@ -271,121 +295,57 @@ function UpdatePage() {
           </Table>
         </TableContainer>
       </div>
-
-      <div className="bg-white h-[550px] col-span-2 rounded-xl">
-        <TableContainer component={Paper} className="h-full">
+      <div className="bg-white h-[100px] col-span-2 rounded-xl">
+        <div className="flex justify-start mx-5 my-5 text-[2rem] items-center gap-3">
+          <TextField
+            className="w-full h-[10px]"
+            id="search-field"
+            label="Search item..."
+            value={search}
+            onChange={handleSearchChange}
+          />
+        </div>
+      </div>
+      <div className="bg-white h-[100px] col-span-2 rounded-xl">
+        <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell
-                  style={{
-                    position: "sticky",
-                    top: 0,
-                    backgroundColor: "#fff",
-                    zIndex: 1,
-                  }}
-                >
-                  Product ID
-                </TableCell>
-                <TableCell
-                  align="center"
-                  style={{
-                    position: "sticky",
-                    top: 0,
-                    backgroundColor: "#fff",
-                    zIndex: 1,
-                  }}
-                >
-                  Product Name
-                </TableCell>
-                <TableCell
-                  align="center"
-                  style={{
-                    position: "sticky",
-                    top: 0,
-                    backgroundColor: "#fff",
-                    zIndex: 1,
-                  }}
-                >
-                  Product Description
-                </TableCell>
-                <TableCell
-                  align="center"
-                  style={{
-                    position: "sticky",
-                    top: 0,
-                    backgroundColor: "#fff",
-                    zIndex: 1,
-                  }}
-                >
-                  Amount
-                </TableCell>
-                <TableCell
-                  align="center"
-                  style={{
-                    position: "sticky",
-                    top: 0,
-                    backgroundColor: "#fff",
-                    zIndex: 1,
-                  }}
-                >
-                  Action
-                </TableCell>
+                <TableCell>Product ID</TableCell>
+                <TableCell>Product Name</TableCell>
+                <TableCell>Product Description</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell align="center">Action</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody
-              className="overflow-y-auto"
-              style={{ maxHeight: "450px" }}
-            >
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    Loading...
+            <TableBody>
+              {groupedData.map((product) => (
+                <TableRow key={product.productid}>
+                  <TableCell>{product.productid}</TableCell>
+                  <TableCell>{product.productname}</TableCell>
+                  <TableCell>{product.productdesc}</TableCell>
+                  <TableCell>{product.productamount}</TableCell>
+                  <TableCell align="center">
+                    <Button
+                      variant="contained"
+                      onClick={() => handleOpenModal(product)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => deleteProduct(product.productid)}
+                    >
+                      Delete
+                    </Button>
                   </TableCell>
                 </TableRow>
-              ) : data.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center" height={"400"}>
-                    <div className="font-bold">Data not found</div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                data.map((row) => (
-                  <TableRow key={row.productid}>
-                    <TableCell component="th" align="left" scope="row">
-                      {row.productid}
-                    </TableCell>
-                    <TableCell align="center">{row.productname}</TableCell>
-                    <TableCell align="center">{row.productdesc}</TableCell>
-                    <TableCell align="center">{row.productamount}</TableCell>
-                    <TableCell align="center">
-                      <div className="flex flex-row gap-2 justify-center items-center mt-2">
-                        <Button
-                          color="primary"
-                          variant="contained"
-                          onClick={() => handleOpenModal(row)}
-                          startIcon={<Icon icon="ic:outline-edit" />}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          color="error"
-                          variant="contained"
-                          onClick={() => deleteProduct(row.productid)}
-                          startIcon={<Icon icon="ic:outline-delete" />}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
       </div>
-
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -398,67 +358,46 @@ function UpdatePage() {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 500,
-            borderRadius: "20px",
+            width: 400,
             bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
             p: 4,
           }}
         >
-          <h2>Edit Product</h2>
+          <h2 id="modal-modal-title">Edit Product</h2>
           <TextField
+            fullWidth
+            margin="normal"
             label="Product Name"
             value={productName}
             onChange={handleProductNameChange}
-            fullWidth
-            margin="normal"
           />
           <TextField
+            fullWidth
+            margin="normal"
             label="Product Description"
             value={productDesc}
             onChange={handleProductDescChange}
-            fullWidth
-            margin="normal"
           />
           <TextField
-            label="Amount"
-            value={productAmount}
-            onChange={handleProductAmountChange}
             fullWidth
             margin="normal"
+            label="Product Amount"
+            value={productAmount}
+            onChange={handleProductAmountChange}
           />
-          <div className="flex justify-end mt-4">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={editItem}
-              style={{ marginRight: "10px" }}
-            >
-              Save
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleCloseModal}
-            >
-              Cancel
-            </Button>
-          </div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={editItem}
+            sx={{ mt: 2 }}
+          >
+            Save Changes
+          </Button>
         </Box>
       </Modal>
-
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        transition={Bounce}
-      />
+      <ToastContainer />
     </div>
   );
 }

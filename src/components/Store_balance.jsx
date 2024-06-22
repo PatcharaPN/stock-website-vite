@@ -1,4 +1,6 @@
 import React from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 const resource = {
   material: 70,
@@ -8,6 +10,20 @@ const resource = {
 };
 
 function Storebalance() {
+  const [data, setData] = useState("");
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/getItem");
+      setData(response.data.length);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      return 0;
+    }
+  };
   return (
     <div className="grid grid-cols-4 gap-4">
       <div className="h-[170px] bg-green-500 rounded-xl">
@@ -22,7 +38,7 @@ function Storebalance() {
           />
           <div className="px-5 flex flex-col justify-center items-center">
             {" "}
-            <div className="text-[4rem]  text-white">{resource.material}</div>
+            <div className="text-[4rem]  text-white">{data}</div>
             <div className="text-white text-[1.2rem] ">จำนวนทั้งหมด</div>
           </div>
         </div>

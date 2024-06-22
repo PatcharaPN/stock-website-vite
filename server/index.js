@@ -37,23 +37,39 @@ db.connect((error) => {
 
 app.get("/api/getItem", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM items", (err, result) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({
-          message: "error",
-          error: err.message,
-        });
-      } else {
-        res.status(200).json({
-          message: "success",
-          items: result.rows,
-          length: result.rows.length,
-        });
+    const result = await db.query(
+      "SELECT * FROM items ORDER BY productname",
+      (err, result) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({
+            message: "error",
+            error: err.message,
+          });
+        } else {
+          // Group items by product name
+          const groupedItems = result.rows.reduce((acc, item) => {
+            const existingItem = acc.find(
+              (i) => i.productname === item.productname
+            );
+            if (existingItem) {
+              existingItem.productamount += item.productamount;
+            } else {
+              acc.push({ ...item });
+            }
+            return acc;
+          }, []);
+
+          res.status(200).json({
+            message: "success",
+            items: groupedItems,
+            length: groupedItems.length,
+          });
+        }
       }
-    });
+    );
   } catch (err) {
-    console.error("Error registering Items:", err);
+    console.error("Error fetching data:", err);
     res.status(500).json({
       message: "error",
       error: err.message,
