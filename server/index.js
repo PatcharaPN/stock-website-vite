@@ -48,6 +48,7 @@ app.get("/api/getItem", async (req, res) => {
         res.status(200).json({
           message: "success",
           items: result.rows,
+          length: result.rows.length,
         });
       }
     });
